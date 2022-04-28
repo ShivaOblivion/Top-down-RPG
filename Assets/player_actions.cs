@@ -37,15 +37,6 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""JumpAlt"",
-                    ""type"": ""Button"",
-                    ""id"": ""e2ecdd6f-98ea-4cfd-95da-4305bcf8583a"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Tap"",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Movements"",
                     ""type"": ""Value"",
                     ""id"": ""35e055c4-e84f-4a28-9d9f-4e4d21d33524"",
@@ -53,6 +44,15 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Sprint"",
+                    ""type"": ""Button"",
+                    ""id"": ""1c8a022e-f525-43d7-b637-df40a408f857"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -64,17 +64,6 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""745f1dcc-f20d-4641-a512-b348c013c032"",
-                    ""path"": ""<Keyboard>/c"",
-                    ""interactions"": ""Tap"",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""JumpAlt"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -132,6 +121,17 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                     ""action"": ""Movements"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9477b762-d4db-4fbd-9a45-3c65c0be5ca0"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": ""Press(behavior=2)"",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Sprint"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -141,8 +141,8 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
         // Basic
         m_Basic = asset.FindActionMap("Basic", throwIfNotFound: true);
         m_Basic_Jump = m_Basic.FindAction("Jump", throwIfNotFound: true);
-        m_Basic_JumpAlt = m_Basic.FindAction("JumpAlt", throwIfNotFound: true);
         m_Basic_Movements = m_Basic.FindAction("Movements", throwIfNotFound: true);
+        m_Basic_Sprint = m_Basic.FindAction("Sprint", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -203,15 +203,15 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Basic;
     private IBasicActions m_BasicActionsCallbackInterface;
     private readonly InputAction m_Basic_Jump;
-    private readonly InputAction m_Basic_JumpAlt;
     private readonly InputAction m_Basic_Movements;
+    private readonly InputAction m_Basic_Sprint;
     public struct BasicActions
     {
         private @Player_actions m_Wrapper;
         public BasicActions(@Player_actions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Jump => m_Wrapper.m_Basic_Jump;
-        public InputAction @JumpAlt => m_Wrapper.m_Basic_JumpAlt;
         public InputAction @Movements => m_Wrapper.m_Basic_Movements;
+        public InputAction @Sprint => m_Wrapper.m_Basic_Sprint;
         public InputActionMap Get() { return m_Wrapper.m_Basic; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -224,12 +224,12 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                 @Jump.started -= m_Wrapper.m_BasicActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_BasicActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_BasicActionsCallbackInterface.OnJump;
-                @JumpAlt.started -= m_Wrapper.m_BasicActionsCallbackInterface.OnJumpAlt;
-                @JumpAlt.performed -= m_Wrapper.m_BasicActionsCallbackInterface.OnJumpAlt;
-                @JumpAlt.canceled -= m_Wrapper.m_BasicActionsCallbackInterface.OnJumpAlt;
                 @Movements.started -= m_Wrapper.m_BasicActionsCallbackInterface.OnMovements;
                 @Movements.performed -= m_Wrapper.m_BasicActionsCallbackInterface.OnMovements;
                 @Movements.canceled -= m_Wrapper.m_BasicActionsCallbackInterface.OnMovements;
+                @Sprint.started -= m_Wrapper.m_BasicActionsCallbackInterface.OnSprint;
+                @Sprint.performed -= m_Wrapper.m_BasicActionsCallbackInterface.OnSprint;
+                @Sprint.canceled -= m_Wrapper.m_BasicActionsCallbackInterface.OnSprint;
             }
             m_Wrapper.m_BasicActionsCallbackInterface = instance;
             if (instance != null)
@@ -237,12 +237,12 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
-                @JumpAlt.started += instance.OnJumpAlt;
-                @JumpAlt.performed += instance.OnJumpAlt;
-                @JumpAlt.canceled += instance.OnJumpAlt;
                 @Movements.started += instance.OnMovements;
                 @Movements.performed += instance.OnMovements;
                 @Movements.canceled += instance.OnMovements;
+                @Sprint.started += instance.OnSprint;
+                @Sprint.performed += instance.OnSprint;
+                @Sprint.canceled += instance.OnSprint;
             }
         }
     }
@@ -250,7 +250,7 @@ public partial class @Player_actions : IInputActionCollection2, IDisposable
     public interface IBasicActions
     {
         void OnJump(InputAction.CallbackContext context);
-        void OnJumpAlt(InputAction.CallbackContext context);
         void OnMovements(InputAction.CallbackContext context);
+        void OnSprint(InputAction.CallbackContext context);
     }
 }

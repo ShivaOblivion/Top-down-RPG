@@ -12,11 +12,15 @@ public class PlayerController : MonoBehaviour
     public SpriteRenderer playerSprite;
     private Rigidbody2D rb;
 
-    public AnimationCurve jumpCurve;
+    public AnimationCurve jumpCurve;        //Courbe de progression du saut
 
+    public float jumpDuration;
     public float moveSpeed;
+    public float sprintAddedSpeed;          //Vitesse ajouté lors du sprint
 
     private bool isJumping;
+    private bool isSprinting = false;
+    private Vector3 groundPosition;
 
     private void Awake()
     {
@@ -42,24 +46,27 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player_actions.Basic.Jump.triggered) Jump(1.0f, 0.0f);
+        Vector2 inputVec = player_actions.Basic.Movements.ReadValue<Vector2>();
+        inputVec.Normalize();
 
+        rb.velocity = inputVec * moveSpeed;
     }
 
-    public void Jump(float jumpHeightScale, float jumpPushScale)
+    public void OnJump()
     {
         if (!isJumping)
         {
-            StartCoroutine(JumpCo(jumpHeightScale, jumpPushScale));
+            StartCoroutine(JumpCo(0.5f, 0.0f));         //Le deuxième paramètre n'est pas utilisé, le premier détermine la hauteur du saut.
         }
     }
 
     private IEnumerator JumpCo(float jumpHeightScale, float jumpPushScale)
     {
         isJumping = true;
+        groundPosition = playerSprite.transform.localPosition;
 
         float startTime = Time.time;
-        float jumpDuration = 2;
+        
 
         while(isJumping)
         {
@@ -67,6 +74,7 @@ public class PlayerController : MonoBehaviour
             jumpCompletionRatio = Mathf.Clamp01(jumpCompletionRatio);
 
             playerSprite.transform.localScale = Vector3.one + Vector3.one * jumpCurve.Evaluate(jumpCompletionRatio)*jumpHeightScale;
+            playerSprite.transform.localPosition = groundPosition + Vector3.up * jumpCurve.Evaluate(jumpCompletionRatio) * playerSprite.size.y;
 
             if (jumpCompletionRatio == 1.0f) break;
 
@@ -74,20 +82,45 @@ public class PlayerController : MonoBehaviour
         }
 
         playerSprite.transform.localScale = Vector3.one;
+        playerSprite.transform.localPosition = groundPosition;
         isJumping = false;
     }
 
-    public void OnJumpAlt()
+    public void OnSprint()
     {
-        Debug.Log("And so he jumped");
+        if (isSprinting)
+        {
+            isSprinting = false;
+            moveSpeed -= sprintAddedSpeed;
+        }
+        else
+        {
+            isSprinting = true;
+            moveSpeed += sprintAddedSpeed;
+        }
     }
 
-    public void OnMovements(InputValue input)
+    /*public void OnMovements(InputValue input)                 //Old way we did it
     {
         Vector2 inputVec = input.Get<Vector2>();
+        inputVec.Normalize();   //Fixe la vitesse de déplacement en diagonal
+        movingVec = inputVec;
 
-        rb.velocity = inputVec * moveSpeed;
+        if (!isSprinting) rb.velocity = inputVec * moveSpeed;
+        else rb.velocity = inputVec * (moveSpeed + sprintAddedSpeed);
+    }*/
 
-        Debug.Log("And so he moved");
-    }
+    /*public void OnSprint()                                //Old way we did it
+    {
+        if (isSprinting)
+        {
+            isSprinting = false;
+            rb.velocity -= movingVec * (sprintAddedSpeed);
+        } else
+        {
+            isSprinting = true;
+            rb.velocity += movingVec * (sprintAddedSpeed);
+        }
+
+    }*/
 }
