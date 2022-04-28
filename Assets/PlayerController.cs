@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
     private Player_actions player_actions;
 
     public SpriteRenderer playerSprite;
+    public GameObject superPlayer;
     private Rigidbody2D rb;
 
     public AnimationCurve jumpCurve;        //Courbe de progression du saut
@@ -50,6 +51,7 @@ public class PlayerController : MonoBehaviour
         inputVec.Normalize();
 
         rb.velocity = inputVec * moveSpeed;
+        //superPlayer.transform.Translate(inputVec * moveSpeed * Time.deltaTime);
     }
 
     public void OnJump()
@@ -63,7 +65,7 @@ public class PlayerController : MonoBehaviour
     private IEnumerator JumpCo(float jumpHeightScale, float jumpPushScale)
     {
         isJumping = true;
-        groundPosition = playerSprite.transform.localPosition;
+        groundPosition = superPlayer.transform.localPosition;
 
         float startTime = Time.time;
         
@@ -74,7 +76,8 @@ public class PlayerController : MonoBehaviour
             jumpCompletionRatio = Mathf.Clamp01(jumpCompletionRatio);
 
             playerSprite.transform.localScale = Vector3.one + Vector3.one * jumpCurve.Evaluate(jumpCompletionRatio)*jumpHeightScale;
-            playerSprite.transform.localPosition = groundPosition + Vector3.up * jumpCurve.Evaluate(jumpCompletionRatio) * playerSprite.size.y;
+            //playerSprite.transform.localPosition = groundPosition + Vector3.up * jumpCurve.Evaluate(jumpCompletionRatio) * playerSprite.size.y;
+            superPlayer.transform.localPosition = groundPosition + Vector3.up * jumpCurve.Evaluate(jumpCompletionRatio) * playerSprite.size.y;
 
             if (jumpCompletionRatio == 1.0f) break;
 
@@ -82,7 +85,7 @@ public class PlayerController : MonoBehaviour
         }
 
         playerSprite.transform.localScale = Vector3.one;
-        playerSprite.transform.localPosition = groundPosition;
+        superPlayer.transform.localPosition = groundPosition;
         isJumping = false;
     }
 
